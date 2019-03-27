@@ -102,6 +102,35 @@ các tín hiệu điện.
 |**Liên kết dữ liệu**|Gồm 2 lớp: LLC, MAC|LAN,WAN|Frame|SWitch, Bridge|
 |**Vật lý**|Mã hóa và truyền các bit dữ liệu|Ethernet|Bit(0,1)|HUb, Repeater|
 
+### 2.8. Quá trình truyền gói tin trong mô hình mạng OSI 
+**Phía gửi**
+<img src="imge/12.png">
+Mỗi gói tin dữ liệu khi được đưa xuống các tầng thì được gắn các header của tầng đó, riêng ở tầng 2 (Data Link), gói tin được gắn thêm FCS (phần kiểm tra lỗi).
+
+- B1: Ở tầng Application (tầng 7), người dùng tiến hành đưa thông tin cần gửi vào máy tính. 
+Các thông tin này thường có dạng như: hình ảnh, văn bản,…
+- B2: Thông tin dữ liệu này được chuyển xuống tầng Presentation để chuyển các dữ liệu thành một dạng chung để mã hóa dữ liệu và nén dữ liệu.
+- B3: Dữ liệu tiếp tục được chuyển xuống tầng Session. 
+Tầng này là tầng phiên có chức năng bổ sung các thông tin cần thiết cho phiên giao dịch (gửi- nhận) này. 
+- B4: Tại tầng Transport, dữ liệu được cắt ra thành nhiều Segment và cũng làm nhiệm vụ bổ sung thêm các thông tin về phương thước vận chuyển dữ liệu để đảm bảo tính bảo mật, tin cậy khi truyền trong mô hình mạng.
+- B3: Xuống tầng Network các segment lại tiếp tục được cắt ra thành nhiều gói Package khác nhau và bổ sung thông tin định tuyến. 
+- B5: Tầng Network chức năng chính của nó là định tuyến đường đi cho gói tin chứa dữ liệu.
+- B6: Dữ liệu tiếp tục được chuyển xuống tầng Data Link (tầng 2). Tại tầng này, mỗi Package sẽ được chia ra thành nhiều Frame và bổ sung thêm các thông tin kiểm tra gói tin chứa dữ liệu để kiểm tra ở máy nhận.
+- B7: Lớp Physical sẽ được chuyển thành một chuỗi các bit nhị phân (0 1….) và được đưa lên cũng như phá tín hiệu trên các phương tiện truyền dẫn  (dây cáp đồng, cáp quang,…) để truyền dữ liệu đến máy nhận.
+
+**Phía nhận**
+<img src="image/13.png">
+
+- B1: Tầng Physical phía máy nhận sẽ kiểm tra quá trình đồng bộ và đưa các chuỗi bit nhị phân nhận được vào vùng đệm. 
+- B2: Tiếp đó tầng Data Link sẽ tiến hành kiểm tra các lỗi trong frame mà bên máy gửi tạo ra bằng cách kiểm tra FCS có trong gói tin được gắn bên phía máy nhận. 
+Nếu có lỗi xảy ra thì frame đó sẽ bị hủy bỏ. Sau đó kiểm tra địa chỉ lớp Data Link (Địa chỉ MAC Address) xem có trùng với địa chỉ của máy nhận hay không. 
+Nếu đúng thì lớp Data Link sẽ thực hiện gỡ bỏ Header của tầng Data Link để tiếp tục chuyển lên tầng Network.
+- B3: Tầng Network sẽ tiến hành kiểm tra xem địa chỉ trong gói tin này có phải là địa chỉ của máy nhận hay không. (địa chỉ ở tầng này là địa chỉ IP). Nếu đúng địa chỉ máy nhận, tầng Network sẽ gỡ bỏ Header của nó và tiếp tục chuyển đến tầng Transport để tiếp tục qui trình.
+- B4: Ở tầng Transport sẽ hỗ trợ phục hồi lỗi và xử lý lỗi bằng cách gửi các gói tin ACK. Sau khi phục hồi sửa lỗi, tầng này tiếp tục sắp xếp các thứ tự phân đoạn và đưa dữ liệu đến tầng Session.
+- B5: Tầng Session làm nhiệm vụ đảm bảo các dữ liệu trong gói tin nhận được toàn vẹn. Sau đó tiến hành gỡ bỏ Header của tầng Session và tiếp tục gửi lên ầng Presentation.
+- B6: Tầng Presentation sẽ xử lý gói tin bằng cách chuyển đối các định dạng dữ liệu cho phù hợp. Sau khi hoàn thành sẽ tiến hành gửi lên tầng Application.
+- B7: Cuối cùng, tầng Application tiến hành xử lý và gỡ bỏ Header cuối cùng. Khi đó ở máy nhận sẽ nhận được dữ liệu của gói tin được truyền đi.
+
 ## III. Mô hình TCP/IP
 
 ICP/IP là một bộ giao thức phát triển bởi cục accs dự án nghiên cứu cấp cao (ARPA) của bộ quốc phòng Mỹ. TCP/IP sử dụng rộng rãi trong mạng máy tính, điển hình là mạng internet.
