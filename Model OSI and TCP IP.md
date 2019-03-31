@@ -75,6 +75,26 @@ Chọn ra 1 tuyến đường đi tối ưu nhất từ điểm này đến đi�
 + Best effort: Truyền càng nhanh càng tôt và không có cơ chế đảm bảo tin cậy.
 + Các gói tin không phụ thuộc vào môi trường truyền dẫn
 
+**Cấu trúc IP header**
+
+<img src="image/14.png">
+
+IP Header Version 4 (tiêu đề gói tin IPv4) gồm 12 trường bắt buộc với tổng chiều dài là 20 byte (không tính các trường Options và Data). Cấu trúc của IP Header Version 4 như hình sau:
+- Version (4 bit): Chỉ ra phiên bản IP đang được dùng 
+- IP Header Length (IHL) (4 bit): Chỉ ra chiều dài của header, mỗi đơn vị là 1 word, mỗi word = 32 bit = 4 byte. Ở đây trường IP Header Length có 4 bit nên có 2^4 = 16 word = 16 x 4byte = 64 byte nên chiều dài header tối đa là 64 byte. Bình thường Hearder dài 20 byte. Đây là chiều dài của tất cả các thông tin Header.
+- Type Of Services (TOS) (8 bit): Chỉ ra cách thức xử lý gói dữ liệu, có độ ưu tiên hay không, độ trễ cho phép của gói dữ liệu. Trường này thường được dùng để thực hiện quản lý chất lượng dịch vụ mạng.
+- Total Length (16 bit): Chỉ ra chiều dài của toàn bộ tính theo byte, bao gồm data và phần header. Do có 16 bit nên tối đa là 2^16 = 65536 byte = 64 Kb nên chiều dài tối đa của 1 IP Datagram là 64 Kb.
+- Identification (16 bit): Chỉ mã số của  1 IP Datagram , giúp bên nhận có thể ghép các mảnh của 1 IP Datagram lại với nhau vì IP Datagram phân thành các mảnh và  các mảnh thuộc cùng  1 IP  Datagram sẽ có cùng Identification.
+- Flag (3 bit): Bit 0: không dùng, Bit 1: cho biết gói có phân mảnh hay không, Bit 2: nếu gói IP Datagram bị phân mảnh thì mảnh này cho biết mảnh này có phải là mảnh cuối không. Bao gồm 6 cờ: URG – cờ cho trường Urgent pointer, ACK – cờ cho trường Acknowledgement, PSH – hàm Push, RST – thiết lập lại đường truyền, SYN – đồng bộ lại số thứ tự, FIN – không gửi thêm dữ liệu.
+- Fragment Offset (13 bit): Báo bên nhận vị trí offset của các mảnh so với gói IP datagram gốc  để có thể ghép lại thành IP datagram gốc.
+- Time To Live (TTL) (8 bit):Thời gian sống của một gói tin. Con số này sẽ giảm đi 1, khi gói tin đi qua 1 router. Khi router nào nhận gói tin thấy  TTL đạt tới 0 gói này sẽ bị loại. Đây là giải pháp nhằm ngăn chặn tình trạng lặp vòng vô hạn của gói tin trên mạng.
+- Protocol (8 bit): Chỉ ra giao thức nào của tầng trên (tầng Transport) sẽ nhận phần data sau khi công đoạn xử lí IP diagram ở tầng Network hoàn tất hoặc chỉ ra giao thức nào của tầng trên gởi segment xuống cho tầng Network đóng gói thành IP Diagram, mỗi giao thức có 1 mã (06:  TCP, 17: UDP, 01:  ICMP…).
+- Header CheckSum (16 bit): Hỗ trợ cho Router phát hiện lỗi bit trong khi nhận IP datagram. Giúp bảo đảm sự toàn vẹn của IP Header.
+- Source IP Address (32 bit): Chỉ ra địa chỉ của thiết bị truyền IP diagram (Xem cấu trúc của địa chỉ IPv4).
+- Destination IP Address (32 bit): Chỉ ra địa chỉ IP của thiết bị sẽ nhận IP diagram (Xem cấu trúc của địa chỉ IPv4).
+- IP Option: kích thước không cố định, chứa các thông tin tùy chọn như: Time stamp – thời điểm đã đi qua Router, j – lưu danh sách địa chỉ IP của Router mà gói phải đi qua, Source Route – bắt buộc đi qua Router nào đó. Lúc này sẽ không cần dùng bảng định tuyến ở mỗi Router nữa.
+- Padding: Các số 0 được bổ sung vào trường này để đảm bảo IP Header luôn là bội số của 32 bit.
+
 ### 2.6.	Tầng liên kết dữ liệu ( Datalink) 
 Điều khiển và truy nhập vào đường truyền vật lý. Các gói dữ liệu được mã hóa và giải mã thành các bit. Nó cho biết giao thức truyền tải, quản lý và xử lý lỗi trong lớp vật lý Physical, điều khiển luồng và đồng bộ khung.
 
@@ -103,8 +123,11 @@ các tín hiệu điện.
 |**Vật lý**|Mã hóa và truyền các bit dữ liệu|Ethernet|Bit(0,1)|HUb, Repeater|
 
 ### 2.8. Quá trình truyền gói tin trong mô hình mạng OSI 
+
 **Phía gửi**
-<img src="imge/12.png">
+
+<img src="image/12.png">
+
 Mỗi gói tin dữ liệu khi được đưa xuống các tầng thì được gắn các header của tầng đó, riêng ở tầng 2 (Data Link), gói tin được gắn thêm FCS (phần kiểm tra lỗi).
 
 - B1: Ở tầng Application (tầng 7), người dùng tiến hành đưa thông tin cần gửi vào máy tính. 
@@ -119,6 +142,7 @@ Tầng này là tầng phiên có chức năng bổ sung các thông tin cần t
 - B7: Lớp Physical sẽ được chuyển thành một chuỗi các bit nhị phân (0 1….) và được đưa lên cũng như phá tín hiệu trên các phương tiện truyền dẫn  (dây cáp đồng, cáp quang,…) để truyền dữ liệu đến máy nhận.
 
 **Phía nhận**
+
 <img src="image/13.png">
 
 - B1: Tầng Physical phía máy nhận sẽ kiểm tra quá trình đồng bộ và đưa các chuỗi bit nhị phân nhận được vào vùng đệm. 

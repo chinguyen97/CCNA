@@ -8,6 +8,16 @@ UDP có các tính chất sau:
 + Quá trình truyền tin nhanh
 + Khắt khe về thời gian
 
+**Cấu trúc UDP header**
+
+<img src="image/15.png">
+
+UDP header có độ dài 8 byte
+- 16bit port nguồn
+- 16 bits port đích
+- 16 bit UDP Length: cho biết toàn bộ gói tin UDP dài tổng cộng bao nhiêu byte. Ta thấy 16 bit thì sẽ có tổng cộng 2^16 byte = 65536 giá trị (từ 0 -> 65535 byte).
+- 16 bit UDP checksum: sử dụng thuật toán mã vòng CRC để kiểm lỗi. Và chỉ kiểm tra một cách hạn chế.
+
 ### II. Giao thức TCP
 TCP là một giao thức hướng kết nối(connection-oriented), hoạt động trên lớp giao vận(Transport) của chồng giao thức TCP/IP, OSI.
 
@@ -21,6 +31,22 @@ TCP là một giao thức hướng kết nối(connection-oriented), hoạt đ�
 + Cơ chế điều khiển luồng
 + Phục hồi dữ liệu (Khi không có ACK thì gửi lại) 
 
+**Cấu trúc TCP header**
+
+<img src="imge/15.png">
+
+Cấu trúc Header TCP có độc dài 20byte
+- Port nguồn (16 bits): Do máy nguồn tự sinh ra trong mỗi phiên kết nối
+- Port đich (16bits): Là port để xác định ứng dụng đang truyền à ứng dụng gì.
+- Sequence number (32bits): Đánh dấu thứ tự các segment 
+- ACK number(32bits): Cơ chế xác nhanajj trong phiên truyền thông
+- Window size(16bits): Giá trị kích thước cửa sổ, quyết định lượng dữ liệu trong 1 lần truyền thông.
+- 4 bit header length: cho biết toàn bộ header dài bao nhiêu Word (1 Word = 4 byte).
+- 16 bit urgent pointer: được sử dụng trong trường hợp cần ưu tiên dữ liệu ( kết hợp với bit điều khiển u r g ở trên).
+- 16bits TCP checksum: Kiểm tra lỗi
+- Các trường ở trên là cố định, TCP dành cho chúng ta trường Option để lập trình thêm các tính năng cho TCP nếu có nhu cầu.
+
+
 ### 2.1. Cơ chế bắt tay 3 bước
 <img src="image/5.png">
 TCP là giao thức hướng kết nối Connection oriented. Host A định truyền dữ liệu cho host B thì phải thiết lập qua các kết nối sau
@@ -29,12 +55,25 @@ TCP là giao thức hướng kết nối Connection oriented. Host A định tru
 + B2: Bên B nhận được SYN sau đó gửi lại gói tin có cờ SYN và ACK được bật lên tức gói tin này báo nhận được gói tin trước đó A gửi cho. ACK=101 với ngụ ý đã nhận được gói tin mang sô thứ tự 100 và mong muốn nhận được gói tin tiếp theo là 300.
 + B3: Kết nối được thiết lập: Bên A báo nhận và gửi gói tin SEQ=101 (đáp ứng yêu cầu bên B) và ACK=301 báo nhận cho gói tin 300, chỉ có cờ ACK được bật lên vì gói tin 3 báo nhận cho gói tin 2. 
 
+**Quá trình ngắt kết nối**
+
+<img src="image/17.png">
+
+Quá trình kết thúc là 2 quá trình kết thúc 1 chiều độc lập nhau:
++ B1: Giả sử bên  A muốn ngắt kết nối, nó sẽ gửi 1 cờ FIN, Ack =p ngụ ý là nó đã nhận được bản tin p-1 và yêu cầu bên B gửi bản tin s. 
+Khi đó kết nối tồn tại dạng "nửa mở" A đã kết thúc việc gửi dữ liệu và chỉ nhận trong khi bên B vẫn tiếp tục gửi. 
++ B2: Cờ ACK được bật lên, ACK =s+1 ngụ ý đã nhận được bản tin yêu cầu từ bên A và ko yêu cầu gửi gói tin tiếp SEQ=0.
++ B3: Để kết nối đóng hoàn toàn, bên B cũng phải làm tương tự tức là gửi 1 cờ FIN cho bên A, ACK = s+1 ngụ ý đã nhận được gói tin s Và yêu cầu gửi p 
++ B4. Bên A Gửi ACK =p+1 ngụ ý đã nhận được yêu cầu gửi gói tin p từ A, SEQ=0 ko yêu cầu gửi gói tin tiếp.
+
 ### 2.2. Cơ chế điều khiển luồng Flow Control 
+
 <img src="image/6.png">
 
 Khi bên gửi A gửi quá nhiều dữ liệu cho bên B, bên B phải đưa vào buffer để xử lý nhưng đến 1 lúc nào đó buffer bị đầy B sẽ gửi tín hiệu “Đừng truyền” thì A sẽ dừng lại. Lúc này B tieepps tục xử lý dần các segment trong bộ đệm của nó cho đến khi buffer trống trở lại thì B gửi tín hiệu “sẵn sàng” A tiếp tục truyền dữ liệu.
 
 ### 2.3. Cơ chế báo nhận (ACK)
+
 <img src="image/7.png">
 
 Khi A gửi một gói tin cho B, B phải báo nhận cho A. Nếu không thấy báo nhận, A sẽ chờ hết khoảng thời gian timeout tiếp tục gửi lại gói tin cho đến khi nào nhận được thì thôi.
@@ -48,6 +87,7 @@ Như vậy sẽ rất mất thời gian thay vì đso gửi nhiều gói cùng l
 <img src="image/8.png">
 
 ### 2.4. Cơ chế cửa sổ trượt TCP Sliding Windowing 
+
 <img src="image/9.png">
 
 ## III. So sánh UDP và TCP
