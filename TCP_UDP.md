@@ -33,7 +33,7 @@ TCP là một giao thức hướng kết nối(connection-oriented), hoạt đ�
 
 **Cấu trúc TCP header**
 
-<img src="imge/15.png">
+<img src="image/15.png">
 
 Cấu trúc Header TCP có độc dài 20byte
 - Port nguồn (16 bits): Do máy nguồn tự sinh ra trong mỗi phiên kết nối
